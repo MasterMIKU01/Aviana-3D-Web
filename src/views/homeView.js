@@ -22,7 +22,7 @@ const INTRO_SLIDES = [
 ];
 
 const ABOUT_INFO =
-  '像素南开：基于体素建模的虚拟校园重建。\n项目团队：赵熙元、张括、冯新效、罗子佳、马云飞、罗列果、朱梓延、董喜然、李珺泽、张梦、程宇航、李佳祺、郭子豪、刘嘉瀚、申羽翔、黄开轩、彭梓懿、苏杰槊、丁博文、朱穆朗玛、杨小洋。';
+  '像素中航大：基于体素建模的虚拟校园重建。'
 
 function makeCardHtml(card) {
   return `
@@ -69,7 +69,7 @@ export function renderHomeView(container, { onOpenModel, initialView = 'intro' }
       </header>
 
       <nav class="switcher">
-        <button class="switch" data-tab="campus">八里台校区</button>
+        <button class="switch" data-tab="campus">东丽校区</button>
         <button class="switch" data-tab="about">关于</button>
         <div class="switch-track"></div>
       </nav>
@@ -85,12 +85,11 @@ export function renderHomeView(container, { onOpenModel, initialView = 'intro' }
           <h2>项目简介</h2>
           <p>${ABOUT_INFO}</p>
           <h3>版本信息</h3>
-          <p>v0.1.2 (Web Rewrite)</p>
-          <h3>鸣谢</h3>
-          <p>南开大学基建保障处</p>
+          <p>v0.0.1</p>
           <h3>交流群</h3>
+          <img src="/assets/qrcode_group.jpg" alt="交流群二维码" height="200" />
           <p>CAUCraft 神人竞技场：496981669</p>
-          <p class="icp">备案号：津ICP备2025036481号-2X</p>
+          <p class="icp">暂无</p>
         </div>
       </section>
 
