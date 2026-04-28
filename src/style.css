@@ -456,8 +456,9 @@ button {
   left: 12px;
   right: 12px;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: flex-start;
+  gap: 8px;
   z-index: 5;
 }
 
