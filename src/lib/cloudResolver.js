@@ -6,24 +6,16 @@ export const PLACEHOLDER_IMAGE =
       '<stop offset="0" stop-color="#0d5a89"/><stop offset="1" stop-color="#0f9d78"/>' +
       '</linearGradient></defs>' +
       '<rect width="1200" height="800" fill="url(#g)"/>' +
-      '<text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#ffffff" opacity="0.9" font-size="42" font-family="serif">VoxelNKU</text>' +
+      '<text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#ffffff" opacity="0.9" font-size="42" font-family="serif">VoxelCAUC</text>' +
     '</svg>'
   );
 
 export function resolveAssetUrl(rawUrl) {
   if (!rawUrl || typeof rawUrl !== 'string') {
-    return { url: '', unresolved: false };
+    return { url: '' };
   }
 
-  if (rawUrl.startsWith('/')) {
-    return { url: rawUrl, unresolved: false };
-  }
-
-  if (/^https?:\/\//i.test(rawUrl)) {
-    return { url: rawUrl, unresolved: false };
-  }
-
-  return { url: rawUrl, unresolved: false };
+  return { url: rawUrl };
 }
 
 export function normalizeModelDefinition(modelValue) {
@@ -42,7 +34,7 @@ export function normalizeModelDefinition(modelValue) {
   }
 
   if (typeof modelValue === 'object') {
-    const url = modelValue.url || modelValue.model || modelValue.obj || '';
+    const url = modelValue.url || modelValue.obj || '';
     return {
       kind: modelValue.kind || modelValue.type || 'bundle',
       url,
@@ -57,7 +49,7 @@ export function normalizeModelDefinition(modelValue) {
 
 export function buildCardResource(building) {
   const imageResult = resolveAssetUrl(building.image);
-  const modelDefinition = normalizeModelDefinition(building.model || building.gltf || building.modelUrl);
+  const modelDefinition = normalizeModelDefinition(building.model);
   const modelResult = resolveAssetUrl(modelDefinition.url);
 
   return {

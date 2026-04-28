@@ -1,4 +1,4 @@
-# VoxelNKU - Website Rewrite
+# VoxelCAUC - Website Rewrite
 
 本仓库现已整理为纯网站版本（Vite + Three.js），保留以下核心能力：
 

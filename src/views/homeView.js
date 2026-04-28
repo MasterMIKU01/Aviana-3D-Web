@@ -4,20 +4,20 @@ import { buildCardResource, PLACEHOLDER_IMAGE } from '../lib/cloudResolver.js';
 const INTRO_SLIDES = [
   {
     title: '像素中航大',
-    subtitle: '用科技传承百年文脉，让南开在虚拟世界中重新绽放',
-    bg: 'cloud://cloudbase-3gbf3fip28cb9f0b.636c-cloudbase-3gbf3fip28cb9f0b-1371154534/cards/主教学楼.webp'
+    subtitle: '用科技传承百年文脉，让中航大在虚拟世界中重新绽放',
+    bg: '/assets/cards/demo.png'
   },
   {
     title: '关于我们的项目',
     content:
-      '欢迎来到“像素南开”！我们是一支由21名来自南开大学各个学院的本科生组成的团队，用现代科技为百年南开注入了新的活力。\n\n我们想向那些因地域限制无法来到南开的人们分享南开的景色，传递南开的精神。',
-    bg: 'cloud://cloudbase-3gbf3fip28cb9f0b.636c-cloudbase-3gbf3fip28cb9f0b-1371154534/cards/第二主教学楼.webp'
+      '欢迎来到“像素中航大”！我们是一支由来自中航大各个学院的本科生组成的团队，用现代科技为百年中航大注入了新的活力。\n\n我们想向那些因地域限制无法来到中航大的人们分享中航大的景色，传递中航大的精神。',
+    bg: '/assets/cards/demo.png'
   },
   {
     title: '我们做了什么',
     content:
-      '完整复原八里台校区，开发 AI 智能导览系统，构建校史知识库，提供观光路线、明信片等沉浸式体验。',
-    bg: 'cloud://cloudbase-3gbf3fip28cb9f0b.636c-cloudbase-3gbf3fip28cb9f0b-1371154534/cards/海冰楼.webp'
+      '完整复原东丽校区，开发 AI 智能导览系统，构建校史知识库，提供观光路线、明信片等沉浸式体验。',
+    bg: '/assets/cards/demo.png'
   }
 ];
 
@@ -40,7 +40,7 @@ function makeCardHtml(card) {
 function makeSlideHtml(slide, idx, active) {
   return `
     <section class="intro-slide ${active ? 'active' : ''}" data-index="${idx}">
-      <img class="intro-bg" src="${PLACEHOLDER_IMAGE}" alt="intro" />
+      <img class="intro-bg" src="${slide.bg || PLACEHOLDER_IMAGE}" alt="intro" />
       <div class="intro-shade"></div>
       <div class="intro-content">
         <h2>${slide.title}</h2>
@@ -63,7 +63,7 @@ export function renderHomeView(container, { onOpenModel, initialView = 'intro' }
 
       <header class="top-bar">
         <div class="logo-block">
-          <p class="logo-kicker">VOXEL NKU</p>
+          <p class="logo-kicker">VOXEL CAUC</p>
           <h1>虚拟校园档案馆</h1>
         </div>
       </header>
@@ -146,6 +146,7 @@ export function renderHomeView(container, { onOpenModel, initialView = 'intro' }
   function syncIntroUi() {
     introEl?.classList.toggle('is-offstage', !introVisible);
     rootEl?.classList.toggle('showcase-mode', !introVisible);
+    if (showcaseBackBtn) showcaseBackBtn.style.display = introVisible ? 'none' : 'flex';
   }
 
   function enterShowcase() {
@@ -204,32 +205,22 @@ export function renderHomeView(container, { onOpenModel, initialView = 'intro' }
   let startY = 0;
   let startTime = 0;
   let tracking = false;
+  let activePointerId = null;
+  let activeTouchId = null;
+  let showcaseBackBtn = null;
   let wheelLockUntil = 0;
 
-  const SWIPE_DISTANCE = 48;
+  const INTRO_TO_SHOWCASE_DISTANCE = 92;
+  const SHOWCASE_TO_INTRO_DISTANCE = 42;
   const SWIPE_MAX_DURATION = 700;
 
-  function onPointerDown(evt) {
-    if (evt.pointerType === 'mouse' && evt.button !== 0) return;
-    tracking = true;
-    startX = evt.clientX;
-    startY = evt.clientY;
-    startTime = Date.now();
-  }
-
-  function onPointerEnd(evt) {
-    if (!tracking) return;
-    tracking = false;
-
-    const elapsed = Date.now() - startTime;
+  function handleSwipe(dx, dy, elapsed) {
     if (elapsed > SWIPE_MAX_DURATION) return;
 
-    const dx = evt.clientX - startX;
-    const dy = evt.clientY - startY;
     const absX = Math.abs(dx);
     const absY = Math.abs(dy);
 
-    if (absX < SWIPE_DISTANCE && absY < SWIPE_DISTANCE) return;
+    if (absX < SHOWCASE_TO_INTRO_DISTANCE && absY < SHOWCASE_TO_INTRO_DISTANCE) return;
 
     if (absX > absY) {
       if (!introVisible) return;
@@ -237,18 +228,96 @@ export function renderHomeView(container, { onOpenModel, initialView = 'intro' }
       return;
     }
 
-    if (introVisible && dy < -SWIPE_DISTANCE) {
+    if (introVisible && dy < -INTRO_TO_SHOWCASE_DISTANCE) {
       enterShowcase();
       return;
     }
 
-    if (!introVisible && dy > SWIPE_DISTANCE && (rootEl?.scrollTop || 0) <= 2) {
+    if (!introVisible && dy > SHOWCASE_TO_INTRO_DISTANCE) {
       backToIntro();
     }
   }
 
+  function onPointerDown(evt) {
+    if (evt.pointerType === 'mouse' && evt.button !== 0) return;
+    tracking = true;
+    activePointerId = evt.pointerId;
+    startX = evt.clientX;
+    startY = evt.clientY;
+    startTime = Date.now();
+    // Don't capture mouse pointers — capturing mouse can prevent click events
+    if (evt.pointerType !== 'mouse') {
+      rootEl?.setPointerCapture?.(evt.pointerId);
+    }
+  }
+
+  function onPointerMove(evt) {
+    if (!tracking) return;
+    let clientX = evt.clientX;
+    let clientY = evt.clientY;
+    if (evt.type && evt.type.startsWith('touch')) {
+      const t = (evt.touches && evt.touches[0]) || (evt.changedTouches && evt.changedTouches[0]);
+      if (!t) return;
+      if (activeTouchId !== null && t.identifier !== activeTouchId) return;
+      clientX = t.clientX;
+      clientY = t.clientY;
+    } else {
+      if (activePointerId !== null && evt.pointerId !== activePointerId) return;
+    }
+
+    // detect early downward swipe on showcase to return
+    const dx = clientX - startX;
+    const dy = clientY - startY;
+    if (!introVisible && Math.abs(dy) > Math.abs(dx) && dy > SHOWCASE_TO_INTRO_DISTANCE) {
+      const scTop = (rootEl && rootEl.scrollTop) || 0;
+      if (scTop <= 8 || startY < 120) {
+        backToIntro();
+        tracking = false;
+        if (!evt.type || !evt.type.startsWith('touch')) {
+          try { rootEl?.releasePointerCapture?.(evt.pointerId); } catch (e) {}
+        }
+      }
+    }
+  }
+
+  function onPointerEnd(evt) {
+    if (!tracking) return;
+    if (activePointerId !== null && evt.pointerId !== activePointerId) return;
+    tracking = false;
+    activePointerId = null;
+
+    handleSwipe(evt.clientX - startX, evt.clientY - startY, Date.now() - startTime);
+  }
+
   function onPointerCancel() {
     tracking = false;
+    activePointerId = null;
+  }
+
+  function onTouchStart(evt) {
+    if (!evt.touches || evt.touches.length === 0) return;
+    const touch = evt.touches[0];
+    tracking = true;
+    activeTouchId = touch.identifier;
+    startX = touch.clientX;
+    startY = touch.clientY;
+    startTime = Date.now();
+  }
+
+  function onTouchEnd(evt) {
+    if (!tracking) return;
+    tracking = false;
+
+    const touch = Array.from(evt.changedTouches || []).find((item) => item.identifier === activeTouchId);
+    activeTouchId = null;
+    if (!touch) return;
+
+    handleSwipe(touch.clientX - startX, touch.clientY - startY, Date.now() - startTime);
+  }
+
+  function onTouchCancel() {
+    tracking = false;
+    activeTouchId = null;
   }
 
   function onWheel(evt) {
@@ -310,22 +379,50 @@ export function renderHomeView(container, { onOpenModel, initialView = 'intro' }
     }
   }
 
-  rootEl?.addEventListener('pointerdown', onPointerDown);
-  rootEl?.addEventListener('pointerup', onPointerEnd);
-  rootEl?.addEventListener('pointercancel', onPointerCancel);
-  rootEl?.addEventListener('wheel', onWheel, { passive: true });
+  const gestureTarget = document;
+  gestureTarget.addEventListener('pointerdown', onPointerDown, true);
+  gestureTarget.addEventListener('pointermove', onPointerMove, true);
+  gestureTarget.addEventListener('pointerup', onPointerEnd, true);
+  gestureTarget.addEventListener('pointercancel', onPointerCancel, true);
+  // touch listeners use capture and are non-passive so we can intercept swipes
+  gestureTarget.addEventListener('touchstart', onTouchStart, { passive: false, capture: true });
+  gestureTarget.addEventListener('touchmove', onPointerMove, { passive: false, capture: true });
+  gestureTarget.addEventListener('touchend', onTouchEnd, { passive: false, capture: true });
+  gestureTarget.addEventListener('touchcancel', onTouchCancel, { passive: false, capture: true });
+  gestureTarget.addEventListener('wheel', onWheel, { passive: true, capture: true });
   window.addEventListener('keydown', onKeyDown);
 
   syncTabUi();
   syncSlideUi();
   syncIntroUi();
 
+  function onShowcaseBackClick(e) {
+    e.stopPropagation();
+    backToIntro();
+  }
+  // create a fixed back button for the showcase (so it doesn't slide with intro)
+  showcaseBackBtn = document.createElement('button');
+  showcaseBackBtn.className = 'intro-back-btn';
+  showcaseBackBtn.setAttribute('aria-label', '回到主页');
+  showcaseBackBtn.title = '回到主页';
+  showcaseBackBtn.textContent = '⤴';
+  showcaseBackBtn.style.display = introVisible ? 'none' : 'flex';
+  rootEl?.appendChild(showcaseBackBtn);
+  showcaseBackBtn.addEventListener('click', onShowcaseBackClick);
+
   return () => {
-    rootEl?.removeEventListener('pointerdown', onPointerDown);
-    rootEl?.removeEventListener('pointerup', onPointerEnd);
-    rootEl?.removeEventListener('pointercancel', onPointerCancel);
-    rootEl?.removeEventListener('wheel', onWheel);
+    gestureTarget.removeEventListener('pointerdown', onPointerDown, true);
+    gestureTarget.removeEventListener('pointermove', onPointerMove, true);
+    gestureTarget.removeEventListener('pointerup', onPointerEnd, true);
+    gestureTarget.removeEventListener('pointercancel', onPointerCancel, true);
+    gestureTarget.removeEventListener('touchstart', onTouchStart, { capture: true });
+    gestureTarget.removeEventListener('touchmove', onPointerMove, { capture: true });
+    gestureTarget.removeEventListener('touchend', onTouchEnd, { capture: true });
+    gestureTarget.removeEventListener('touchcancel', onTouchCancel, { capture: true });
+    gestureTarget.removeEventListener('wheel', onWheel, { capture: true });
     window.removeEventListener('keydown', onKeyDown);
+    showcaseBackBtn?.removeEventListener('click', onShowcaseBackClick);
+    showcaseBackBtn?.remove();
     container.innerHTML = '';
   };
 }

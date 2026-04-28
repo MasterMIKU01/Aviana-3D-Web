@@ -35,8 +35,8 @@ function buildMtlUrl(modelUrl, explicitMtlUrl) {
 
 function resolveModelBundle(building) {
   const bundle = building.modelBundle || {};
-  const modelDefinition = normalizeModelDefinition(building.model || building.gltf || building.modelUrl);
-  const modelUrl = bundle.obj || modelDefinition.obj || modelDefinition.url || building.modelUrl || '';
+  const modelDefinition = normalizeModelDefinition(building.model);
+  const modelUrl = bundle.obj || modelDefinition.obj || modelDefinition.url || '';
   const mtlUrl = bundle.mtl || modelDefinition.mtl || building.mtl || '';
   const texturePath = bundle.texturePath || modelDefinition.texturePath || '';
   return {
