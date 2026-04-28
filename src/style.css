@@ -1,13 +1,19 @@
 @import url('https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@400;600;700&display=swap');
 
 :root {
-  --bg: #f8f6ef;
-  --ink: #1c2b33;
-  --blue: #05a6f1;
-  --green: #63ccf7;
+  /* Theme palette (user requested) */
+  --theme-light: #E0EDFF; /* pale */
+  --theme-accent: #B80D4F; /* magenta */
+  --theme-primary: #1E3A8A; /* deep blue */
+  --theme-deep: #0B1120; /* near black */
+
+  --bg: linear-gradient(circle at 10% 10%, var(--theme-light) 0%, #f5f5f1 42%, var(--theme-primary) 100%);
+  --ink: var(--theme-deep);
+  --blue: var(--theme-primary);
+  --accent: var(--theme-accent);
   --sand: #efe3ca;
-  --card: #fffdf6;
-  --shadow: 0 20px 48px rgba(18, 44, 61, 0.16);
+  --card: #ffffff;
+  --shadow: 0 20px 48px rgba(11, 17, 32, 0.18);
 }
 
 * {
@@ -588,5 +594,67 @@ button {
 
   .grid {
     grid-template-columns: 1fr;
+  }
+}
+
+/* Responsive viewer and controls */
+@media (max-width: 900px) {
+  .viewer-controls {
+    right: 12px;
+    top: auto;
+    bottom: 12px;
+    left: 12px;
+    width: auto;
+    padding: 10px;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+
+  .viewer-controls label {
+    font-size: 13px;
+  }
+
+  .viewer-controls input[type="range"] {
+    width: 120px;
+    touch-action: none;
+    -webkit-appearance: none;
+    height: 36px;
+  }
+
+  .viewer-controls input[type="color"] {
+    width: 40px;
+    height: 32px;
+  }
+
+  .viewer-controls input[type="number"] {
+    display: none; /* hide numeric inputs on small screens to reduce clutter */
+  }
+
+  .viewer-top {
+    left: 12px;
+    right: 12px;
+    padding-right: 72px; /* leave space for controls when top positions change */
+  }
+
+  .intro-edge-nav {
+    width: 44px;
+    height: 44px;
+    font-size: 20px;
+  }
+}
+
+@media (min-width: 901px) {
+  /* Desktop: keep controls compact on top-right */
+  .viewer-controls {
+    top: max(12px, env(safe-area-inset-top));
+    right: 12px;
+    bottom: auto;
+    left: auto;
+    width: auto;
+  }
+
+  .viewer-controls input[type="range"] {
+    width: 84px;
   }
 }
