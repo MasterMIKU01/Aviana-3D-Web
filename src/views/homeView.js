@@ -1,5 +1,5 @@
 import { BUILDINGS_CONFIG } from '../config/buildings.js';
-import { buildCardResource, PLACEHOLDER_IMAGE } from '../lib/cloudResolver.js';
+import { buildCardResource, PLACEHOLDER_IMAGE } from '../lib/modelResolver.js';
 
 const INTRO_SLIDES = [
   {

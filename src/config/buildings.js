@@ -8,10 +8,8 @@ export const BUILDINGS_CONFIG = [
         image: "/assets/cards/demo.png",
         // model: { obj: "/assets/models/bei1/bei1.obj", mtl: "/assets/models/bei1/bei1.mtl", texturePath: "/assets/models/bei1/" }
         model: {
-            kind: "obj",
-            obj: "/assets/models/bei1/bei1.obj",
-            mtl: "/assets/models/bei1/bei1.mtl",
-            texturePath: "/assets/models/bei1/"
+            format: "obj",
+            path: "/assets/models/bei1/"
         }
     },
     {
@@ -22,5 +20,47 @@ export const BUILDINGS_CONFIG = [
         description: "这是一只可口的福瑞，被抓来当展示实验体。",
         image: "/assets/cards/demo.png",
         model: "/assets/models/luoke.glb"
+    },
+    {
+        id: "test01",
+        title: "Bird",
+        athou: "Unknown",
+        info: "Unknown",
+        description: "Unknow",
+        image: "/assets/cards/demo.png",
+        model: "/assets/models/phoenix_bird.glb"
+    },
+    {
+        id: "test02",
+        title: "Miyu",
+        athou: "Unknown",
+        info: "Unknown",
+        description: "Unknow",
+        image: "/assets/cards/demo.png",
+        model: "/assets/models/miyu.glb"
+    },
+    {
+        id: "test03",
+        title: "Building1",
+        athou: "Unknown",
+        info: "Unknown",
+        description: "Unknow",
+        image: "/assets/cards/demo.png",
+        model: {
+            format: "obj",
+            path: "/assets/models/3/"
+        }    
+    },
+    {
+        id: "test04",
+        title: "Building2",
+        athou: "Unknown",
+        info: "Unknown",
+        description: "Unknow",
+        image: "/assets/cards/demo.png",
+        model: {
+            format: "obj",
+            path: "/assets/models/4/"
+        }    
     }
 ];
