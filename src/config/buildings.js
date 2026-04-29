@@ -60,7 +60,7 @@ export const BUILDINGS_CONFIG = [
         image: "/assets/cards/demo.png",
         model: {
             format: "obj",
-            path: "/assets/models/4/"
+            path: "/assets/models/5/"
         }    
     }
 ];

@@ -76,7 +76,7 @@
 # export_bounds_min: (-24, -39, -831)
 # export_bounds_max: (110, 319, -739)
 # export_offset: (-43.000000, 39.000000, 785.000000)
-# block_scale: 0.002
+# block_scale: 0.004
 # block_origin_offset: (0.000000, 0.000000, 0.000000)
 # z_up: true
 # texture_type: ATLAS

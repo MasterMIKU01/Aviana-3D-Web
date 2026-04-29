@@ -4,7 +4,7 @@ export const FOUNDATIONS_CONFIG = [
         title: "test",
         model: {
             format: "obj",
-            path: "/assets/foundations/3/"
+            path: "/assets/foundations/2/"
         }
     }
 ];

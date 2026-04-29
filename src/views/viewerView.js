@@ -120,6 +120,21 @@ export function renderViewerView(container, { id, onBack }) {
         <details class="viewer-foldout">
           <summary>模型控制</summary>
           <div class="viewer-foldout-body">
+            <div class="viewer-translate-title" style="font-size:12px; color:rgba(234,248,255,0.8); margin-bottom:8px;">控制对象</div>
+            <div class="viewer-bg-row" style="margin-bottom:12px;">
+              <select data-el="target-select" style="background: rgba(3,78,114,0.9); color: #eaf8ff; border: 1px solid rgba(148,226,255,0.14); border-radius: 4px; padding: 4px; flex:1;">
+                <option value="model" selected>主体模型</option>
+                <option value="foundation">地基模型</option>
+              </select>
+            </div>
+
+              <label>缩放比例</label>
+              <div class="viewer-slider-controls">
+                <input type="range" min="0.1" max="100" step="0.1" value="1" data-el="target-scale" />
+                <input type="number" data-el="target-scale-num" value="1" step="0.1" />
+              </div>
+            </div>
+
             <div class="viewer-translate-title" style="font-size:12px; color:rgba(234,248,255,0.8); margin-bottom:8px;">位置平移</div>
             <div class="viewer-translate-grid">
               <button type="button" class="viewer-translate-btn viewer-translate-btn--up" data-act="move-model" data-axis="y" data-dir="1">上</button>
@@ -158,7 +173,7 @@ export function renderViewerView(container, { id, onBack }) {
             </div>
 
             <label class="viewer-toggle-line" style="margin-top:12px;">
-              <input type="checkbox" data-el="toggle-grid" checked />
+              <input type="checkbox" data-el="toggle-grid" />
               <span>显示参考线</span>
             </label>
 
@@ -172,36 +187,6 @@ export function renderViewerView(container, { id, onBack }) {
               <select data-el="foundation-select" style="background: rgba(3,78,114,0.9); color: #eaf8ff; border: 1px solid rgba(148,226,255,0.14); border-radius: 4px; padding: 4px; flex:1; margin-left:8px;">
                 ${FOUNDATIONS_CONFIG.map(f => `<option value="${encodeHtml(f.id)}">${encodeHtml(f.title)}</option>`).join('')}
               </select>
-            </div>
-
-            <div class="viewer-translate-title" style="font-size:12px; color:rgba(234,248,255,0.8); margin-top:12px; margin-bottom:8px;">地基角度旋转</div>
-            <div class="viewer-translate-grid">
-              <button type="button" class="viewer-translate-btn" data-act="rotate-foundation" data-axis="x" data-dir="1">X轴 +90°</button>
-              <button type="button" class="viewer-translate-btn" data-act="rotate-foundation" data-axis="y" data-dir="1">Y轴 +90°</button>
-              <button type="button" class="viewer-translate-btn" data-act="rotate-foundation" data-axis="z" data-dir="1">Z轴 +90°</button>
-              <button type="button" class="viewer-translate-btn" data-act="rotate-foundation" data-axis="x" data-dir="-1">X轴 -90°</button>
-              <button type="button" class="viewer-translate-btn" data-act="rotate-foundation" data-axis="y" data-dir="-1">Y轴 -90°</button>
-              <button type="button" class="viewer-translate-btn" data-act="rotate-foundation" data-axis="z" data-dir="-1">Z轴 -90°</button>
-            </div>
-
-            <div class="viewer-translate-title" style="font-size:12px; color:rgba(234,248,255,0.8); margin-top:12px; margin-bottom:8px;">地基尺寸与位置偏移</div>
-
-            <div class="viewer-slider-row" style="margin-bottom:12px;">
-              <label>缩放比例</label>
-              <div class="viewer-slider-controls">
-                <input type="range" min="0.1" max="100" step="0.1" value="1" data-el="foundation-scale" />
-                <input type="number" data-el="foundation-scale-num" value="1" step="0.1" />
-              </div>
-            </div>
-
-            <div class="viewer-translate-grid">
-              <button type="button" class="viewer-translate-btn viewer-translate-btn--up" data-act="move-foundation" data-axis="y" data-dir="1">上</button>
-              <button type="button" class="viewer-translate-btn viewer-translate-btn--front" data-act="move-foundation" data-axis="z" data-dir="1">前</button>
-              <button type="button" class="viewer-translate-btn viewer-translate-btn--left" data-act="move-foundation" data-axis="x" data-dir="-1">左</button>
-              <button type="button" class="viewer-translate-btn viewer-translate-btn--reset" data-act="reset-foundation">复位</button>
-              <button type="button" class="viewer-translate-btn viewer-translate-btn--right" data-act="move-foundation" data-axis="x" data-dir="1">右</button>
-              <button type="button" class="viewer-translate-btn viewer-translate-btn--back" data-act="move-foundation" data-axis="z" data-dir="-1">后</button>
-              <button type="button" class="viewer-translate-btn viewer-translate-btn--down" data-act="move-foundation" data-axis="y" data-dir="-1">下</button>
             </div>
           </div>
         </details>
@@ -311,6 +296,7 @@ export function renderViewerView(container, { id, onBack }) {
 
     const grid = new THREE.GridHelper(280, 20, 0x1f7ea8, 0x154053);
     grid.position.y = -0.1;
+    grid.visible = false; // default off
     scene.add(grid);
 
     const loader = new GLTFLoader();
@@ -493,6 +479,9 @@ export function renderViewerView(container, { id, onBack }) {
     const elNum = controlsRoot?.querySelector('[data-el="light-elevation-num"]');
     const bgEl = controlsRoot?.querySelector('[data-el="bg-color"]');
     const toggleGridEl = controlsRoot?.querySelector('[data-el="toggle-grid"]');
+    const targetSelectEl = controlsRoot?.querySelector('[data-el="target-select"]');
+    const targetScaleEl = controlsRoot?.querySelector('[data-el="target-scale"]');
+    const targetScaleNum = controlsRoot?.querySelector('[data-el="target-scale-num"]');
     const moveButtons = controlsRoot?.querySelectorAll('[data-act="move-model"]');
     const rotateButtons = controlsRoot?.querySelectorAll('[data-act="rotate-model"]');
     const autoRotateEl = controlsRoot?.querySelector('[data-el="auto-rotate"]');
@@ -500,11 +489,6 @@ export function renderViewerView(container, { id, onBack }) {
 
     const toggleFoundationEl = controlsRoot?.querySelector('[data-el="toggle-foundation"]');
     const foundationSelectEl = controlsRoot?.querySelector('[data-el="foundation-select"]');
-    const foundationScaleEl = controlsRoot?.querySelector('[data-el="foundation-scale"]');
-    const foundationScaleNum = controlsRoot?.querySelector('[data-el="foundation-scale-num"]');
-    const foundationMoveBtns = controlsRoot?.querySelectorAll('[data-act="move-foundation"]');
-    const foundationRotateBtns = controlsRoot?.querySelectorAll('[data-act="rotate-foundation"]');
-    const foundationResetBtn = controlsRoot?.querySelector('[data-act="reset-foundation"]');
 
     let foundationRoot = new THREE.Group();
     foundationRoot.position.y = -0.2; // Slightly below grid (-0.1)
@@ -551,55 +535,47 @@ export function renderViewerView(container, { id, onBack }) {
       }
     }
 
-    function applyModelTranslation(axis, direction) {
-      if (!modelRoot) return;
-      if (axis === 'x') modelRoot.position.x += translateStep * direction;
-      if (axis === 'y') modelRoot.position.y += translateStep * direction;
-      if (axis === 'z') modelRoot.position.z += translateStep * direction;
+    function applyTranslation(axis, direction) {
+      let target = targetSelectEl && targetSelectEl.value === 'foundation' ? foundationRoot : modelRoot;
+      if (!target) return;
+      if (axis === 'x') target.position.x += translateStep * direction;
+      if (axis === 'y') target.position.y += translateStep * direction;
+      if (axis === 'z') target.position.z += translateStep * direction;
     }
 
-    function applyModelRotation(axis, direction) {
-      if (!modelRoot) return;
+    function applyRotation(axis, direction) {
+      let target = targetSelectEl && targetSelectEl.value === 'foundation' ? foundationRoot : modelRoot;
+      if (!target) return;
       const deg90 = Math.PI / 2;
-      if (axis === 'x') modelRoot.rotation.x += deg90 * direction;
-      if (axis === 'y') modelRoot.rotation.y += deg90 * direction;
-      if (axis === 'z') modelRoot.rotation.z += deg90 * direction;
+      if (axis === 'x') target.rotation.x += deg90 * direction;
+      if (axis === 'y') target.rotation.y += deg90 * direction;
+      if (axis === 'z') target.rotation.z += deg90 * direction;
     }
 
-    function resetModelTranslation() {
-      if (!modelRoot) return;
-      modelRoot.position.set(0, 0, 0);
-      modelRoot.rotation.set(0, 0, 0);
+    function resetTranslation() {
+      let targetId = targetSelectEl ? targetSelectEl.value : 'model';
+      if (targetId === 'foundation' && foundationRoot) {
+        foundationRoot.position.set(0, -0.2, 0); // Put it back just below the grid
+        foundationRoot.rotation.set(0, 0, 0);
+        foundationRoot.scale.set(1, 1, 1);
+        if (targetScaleEl) targetScaleEl.value = '1';
+        if (targetScaleNum) targetScaleNum.value = '1';
+      } else if (modelRoot) {
+        modelRoot.position.set(0, 0, 0);
+        modelRoot.rotation.set(0, 0, 0);
+        modelRoot.scale.set(1, 1, 1);
+        if (targetScaleEl) targetScaleEl.value = '1';
+        if (targetScaleNum) targetScaleNum.value = '1';
+      }
     }
 
-    function applyFoundationTranslation(axis, direction) {
-      if (axis === 'x') foundationRoot.position.x += translateStep * direction;
-      if (axis === 'y') foundationRoot.position.y += translateStep * direction;
-      if (axis === 'z') foundationRoot.position.z += translateStep * direction;
-    }
-
-    function applyFoundationRotation(axis, direction) {
-      if (!foundationRoot) return;
-      const deg90 = Math.PI / 2;
-      if (axis === 'x') foundationRoot.rotation.x += deg90 * direction;
-      if (axis === 'y') foundationRoot.rotation.y += deg90 * direction;
-      if (axis === 'z') foundationRoot.rotation.z += deg90 * direction;
-    }
-
-    function resetFoundationTranslation() {
-      foundationRoot.position.set(0, -0.2, 0); // Put it back just below the grid
-      foundationRoot.rotation.set(0, 0, 0);
-      foundationRoot.scale.set(1, 1, 1);
-      if (foundationScaleEl) foundationScaleEl.value = '1';
-      if (foundationScaleNum) foundationScaleNum.value = '1';
-    }
-
-    function applyFoundationScale() {
-      if (!foundationRoot) return;
-      let s = foundationScaleEl ? parseFloat(foundationScaleEl.value) : 1;
+    function applyScale() {
+      let target = targetSelectEl && targetSelectEl.value === 'foundation' ? foundationRoot : modelRoot;
+      if (!target) return;
+      let s = targetScaleEl ? parseFloat(targetScaleEl.value) : 1;
       if (isNaN(s) || s <= 0) s = 1;
-      if (foundationScaleNum) foundationScaleNum.value = s;
-      foundationRoot.scale.set(s, s, s);
+      if (targetScaleNum) targetScaleNum.value = s;
+      target.scale.set(s, s, s);
     }
 
     function syncFoundation() {
@@ -737,12 +713,21 @@ export function renderViewerView(container, { id, onBack }) {
     fullbrightEl?.addEventListener('change', onFullbrightChange);
     lightHelperEl?.addEventListener('change', onLightHelperChange);
     bgEl?.addEventListener('input', onBgChange);
+    toggleGridEl?.addEventListener('change', onGridChange);
+
+    targetSelectEl?.addEventListener('change', () => {
+      let target = targetSelectEl && targetSelectEl.value === 'foundation' ? foundationRoot : modelRoot;
+      if (!target) return;
+      let s = target.scale.x;
+      if (targetScaleEl) targetScaleEl.value = String(s);
+      if (targetScaleNum) targetScaleNum.value = String(s);
+    });
 
     moveButtons?.forEach((button) => {
       button.addEventListener('click', () => {
         const axis = button.getAttribute('data-axis');
         const direction = Number(button.getAttribute('data-dir') || '0');
-        applyModelTranslation(axis, direction);
+        applyTranslation(axis, direction);
       });
     });
 
@@ -750,7 +735,7 @@ export function renderViewerView(container, { id, onBack }) {
       button.addEventListener('click', () => {
         const axis = button.getAttribute('data-axis');
         const direction = Number(button.getAttribute('data-dir') || '0');
-        applyModelRotation(axis, direction);
+        applyRotation(axis, direction);
       });
     });
 
@@ -761,7 +746,7 @@ export function renderViewerView(container, { id, onBack }) {
       }
     });
 
-    resetButton?.addEventListener('click', resetModelTranslation);
+    resetButton?.addEventListener('click', resetTranslation);
 
     toggleFoundationEl?.addEventListener('change', syncFoundation);
     foundationSelectEl?.addEventListener('change', () => {
@@ -770,36 +755,19 @@ export function renderViewerView(container, { id, onBack }) {
       syncFoundation();
     });
 
-    foundationScaleNum?.addEventListener('change', () => {
-      if (foundationScaleEl && foundationScaleNum) {
-        foundationScaleEl.value = String(Number(foundationScaleNum.value) || 1);
-        applyFoundationScale();
+    targetScaleNum?.addEventListener('change', () => {
+      if (targetScaleEl && targetScaleNum) {
+        targetScaleEl.value = String(Number(targetScaleNum.value) || 1);
+        applyScale();
       }
     });
-    foundationScaleEl?.addEventListener('input', applyFoundationScale);
-
-    foundationMoveBtns?.forEach((button) => {
-      button.addEventListener('click', () => {
-        const axis = button.getAttribute('data-axis');
-        const direction = Number(button.getAttribute('data-dir') || '0');
-        applyFoundationTranslation(axis, direction);
-      });
-    });
-
-    foundationRotateBtns?.forEach((button) => {
-      button.addEventListener('click', () => {
-        const axis = button.getAttribute('data-axis');
-        const direction = Number(button.getAttribute('data-dir') || '0');
-        applyFoundationRotation(axis, direction);
-      });
-    });
-
-    foundationResetBtn?.addEventListener('click', resetFoundationTranslation);
+    targetScaleEl?.addEventListener('input', applyScale);
 
     // initialize
     // ensure fullbright control reflects default
     if (fullbrightEl) fullbrightEl.checked = true;
     if (lightHelperEl) lightHelperEl.checked = false;
+    if (toggleGridEl) toggleGridEl.checked = false;
     updateDirFromUi();
     onBgChange();
     onLightHelperChange();
